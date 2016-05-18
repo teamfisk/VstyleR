@@ -28,6 +28,8 @@ public class SteamVR_Camera : MonoBehaviour
 	}
 
 	public bool wireframe = false;
+    public RenderTexture LeftEyeRenderTexture;
+    public RenderTexture RightEyeRenderTexture;
 
 	[SerializeField]
 	private SteamVR_CameraFlip flip;
@@ -229,8 +231,8 @@ public class SteamVR_Camera : MonoBehaviour
 #else
 			if (this != components[components.Length - 1] || flip == null)
 			{
-				if (flip == null)
-					flip = gameObject.AddComponent<SteamVR_CameraFlip>();
+				//if (flip == null)
+				//	flip = gameObject.AddComponent<SteamVR_CameraFlip>();
 #endif
 				// Store off values to be restored on new instance
 				values = new Hashtable();
@@ -385,8 +387,8 @@ public class SteamVR_Camera : MonoBehaviour
 
 	void OnPreRender()
 	{
-		if (flip)
-			flip.enabled = (SteamVR_Render.Top() == this && SteamVR.instance.graphicsAPI == EGraphicsAPIConvention.API_DirectX);
+		//if (flip)
+		//	flip.enabled = (SteamVR_Render.Top() == this && SteamVR.instance.graphicsAPI == EGraphicsAPIConvention.API_DirectX);
 
 		var headCam = head.GetComponent<Camera>();
 		if (headCam != null)
@@ -402,44 +404,49 @@ public class SteamVR_Camera : MonoBehaviour
 			GL.wireframe = false;
 	}
 
-	void OnRenderImage(RenderTexture src, RenderTexture dest)
-	{
-		if (SteamVR_Render.Top() == this)
-		{
-			int eventID;
-			if (SteamVR_Render.eye == EVREye.Eye_Left)
-			{
-				// Get gpu started on work early to avoid bubbles at the top of the frame.
-				SteamVR_Utils.QueueEventOnRenderThread(SteamVR.Unity.k_nRenderEventID_Flush);
+    void OnRenderImage(RenderTexture src, RenderTexture dest) {
+        if (LeftEyeRenderTexture == null) {
+            //if (SteamVR_Render.Top() == this) {
+                int eventID;
+                if (SteamVR_Render.eye == EVREye.Eye_Left) {
+                    // Get gpu started on work early to avoid bubbles at the top of the frame.
+                    SteamVR_Utils.QueueEventOnRenderThread(SteamVR.Unity.k_nRenderEventID_Flush);
 
-				eventID = SteamVR.Unity.k_nRenderEventID_SubmitL;
-			}
-			else
-			{
-				eventID = SteamVR.Unity.k_nRenderEventID_SubmitR;
-			}
+                    eventID = SteamVR.Unity.k_nRenderEventID_SubmitL;
+                }
+                else {
+                    eventID = SteamVR.Unity.k_nRenderEventID_SubmitR;
+                }
 
-			// Queue up a call on the render thread to Submit our render target to the compositor.
-			SteamVR_Utils.QueueEventOnRenderThread(eventID);
-		}
+                // Queue up a call on the render thread to Submit our render target to the compositor.
+                SteamVR_Utils.QueueEventOnRenderThread(eventID);
 
+            //}
+        } else {
+            if (SteamVR_Render.eye == EVREye.Eye_Right) {
+                Graphics.Blit(src, RightEyeRenderTexture);
+            }
+            else {
+                Graphics.Blit(src, LeftEyeRenderTexture);
+            }
+        }
 
-		Graphics.SetRenderTarget(dest);
-		SteamVR_Camera.blitMaterial.mainTexture = src;
+        //Graphics.SetRenderTarget(dest);
+        //SteamVR_Camera.blitMaterial.mainTexture = src;
 
-		GL.PushMatrix();
-		GL.LoadOrtho();
-		SteamVR_Camera.blitMaterial.SetPass(0);
-        GL.Begin(GL.QUADS);
-        GL.TexCoord2(0.0f, 0.0f); GL.Vertex3(-1, 1, 0);
-        GL.TexCoord2(1.0f, 0.0f); GL.Vertex3(1, 1, 0);
-        GL.TexCoord2(1.0f, 1.0f); GL.Vertex3(1, -1, 0);
-        GL.TexCoord2(0.0f, 1.0f); GL.Vertex3(-1, -1, 0);
-        GL.End();
-        GL.PopMatrix();
+        //GL.PushMatrix();
+        //GL.LoadOrtho();
+        //SteamVR_Camera.blitMaterial.SetPass(0);
+        //GL.Begin(GL.QUADS);
+        //GL.TexCoord2(0.0f, 0.0f); GL.Vertex3(-1, 1, 0);
+        //GL.TexCoord2(1.0f, 0.0f); GL.Vertex3(1, 1, 0);
+        //GL.TexCoord2(1.0f, 1.0f); GL.Vertex3(1, -1, 0);
+        //GL.TexCoord2(0.0f, 1.0f); GL.Vertex3(-1, -1, 0);
+        //GL.End();
+        //GL.PopMatrix();
 
-        Graphics.SetRenderTarget(null);
-	}
+        //Graphics.SetRenderTarget(null);
+    }
 
 	#endregion
 

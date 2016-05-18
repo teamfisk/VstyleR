@@ -261,7 +261,7 @@ public class SteamVR_PlayArea : MonoBehaviour
 			// No need to remain enabled at runtime.
 			// Anyone that wants to change properties at runtime
 			// should call BuildMesh themselves.
-			//enabled = false;
+			enabled = false;
 
 			// If we want the configured bounds of the user,
 			// we need to wait for tracking.

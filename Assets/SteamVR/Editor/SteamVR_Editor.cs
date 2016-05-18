@@ -14,7 +14,7 @@ public class SteamVR_Editor : Editor
 	int bannerHeight = 150;
 	Texture logo;
 
-	SerializedProperty script, wireframe;
+	SerializedProperty script, wireframe, RightEyeRenderTexture, LeftEyeRenderTexture;
 
 	string GetResourcePath()
 	{
@@ -35,6 +35,9 @@ public class SteamVR_Editor : Editor
 		script = serializedObject.FindProperty("m_Script");
 
 		wireframe = serializedObject.FindProperty("wireframe");
+
+        RightEyeRenderTexture = serializedObject.FindProperty("RightEyeRenderTexture");
+        LeftEyeRenderTexture = serializedObject.FindProperty("LeftEyeRenderTexture");
 
 		foreach (SteamVR_Camera target in targets)
 			target.ForceLast();
@@ -105,6 +108,8 @@ public class SteamVR_Editor : Editor
 
 		EditorGUILayout.PropertyField(script);
 		EditorGUILayout.PropertyField(wireframe);
+		EditorGUILayout.PropertyField(LeftEyeRenderTexture);
+		EditorGUILayout.PropertyField(RightEyeRenderTexture);
 
 		serializedObject.ApplyModifiedProperties();
 	}
