@@ -11,6 +11,10 @@ public class CameraFade : MonoBehaviour {
 
     static Material blitMaterial;
 
+    public void SetFade(float alpha) {
+        this.alpha = alpha;
+    }
+
 	// Use this for initialization
 	void Start () {
         if (!blitMaterial) {
@@ -20,8 +24,8 @@ public class CameraFade : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        int deviceIndex = 4;
-        alpha = SteamVR_Controller.Input(deviceIndex).GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger).x;
+        //int deviceIndex = 3;
+        //alpha = SteamVR_Controller.Input(deviceIndex).GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger).x;
     }
 
     void OnRenderImage(RenderTexture src, RenderTexture dest) {

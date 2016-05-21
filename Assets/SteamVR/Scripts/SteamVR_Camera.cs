@@ -422,6 +422,22 @@ public class SteamVR_Camera : MonoBehaviour
                 SteamVR_Utils.QueueEventOnRenderThread(eventID);
 
             //}
+
+            Graphics.SetRenderTarget(dest);
+            SteamVR_Camera.blitMaterial.mainTexture = src;
+
+            GL.PushMatrix();
+            GL.LoadOrtho();
+            SteamVR_Camera.blitMaterial.SetPass(0);
+            GL.Begin(GL.QUADS);
+            GL.TexCoord2(0.0f, 0.0f); GL.Vertex3(-1, 1, 0);
+            GL.TexCoord2(1.0f, 0.0f); GL.Vertex3(1, 1, 0);
+            GL.TexCoord2(1.0f, 1.0f); GL.Vertex3(1, -1, 0);
+            GL.TexCoord2(0.0f, 1.0f); GL.Vertex3(-1, -1, 0);
+            GL.End();
+            GL.PopMatrix();
+
+            Graphics.SetRenderTarget(null);
         } else {
             if (SteamVR_Render.eye == EVREye.Eye_Right) {
                 Graphics.Blit(src, RightEyeRenderTexture);
@@ -431,21 +447,7 @@ public class SteamVR_Camera : MonoBehaviour
             }
         }
 
-        //Graphics.SetRenderTarget(dest);
-        //SteamVR_Camera.blitMaterial.mainTexture = src;
 
-        //GL.PushMatrix();
-        //GL.LoadOrtho();
-        //SteamVR_Camera.blitMaterial.SetPass(0);
-        //GL.Begin(GL.QUADS);
-        //GL.TexCoord2(0.0f, 0.0f); GL.Vertex3(-1, 1, 0);
-        //GL.TexCoord2(1.0f, 0.0f); GL.Vertex3(1, 1, 0);
-        //GL.TexCoord2(1.0f, 1.0f); GL.Vertex3(1, -1, 0);
-        //GL.TexCoord2(0.0f, 1.0f); GL.Vertex3(-1, -1, 0);
-        //GL.End();
-        //GL.PopMatrix();
-
-        //Graphics.SetRenderTarget(null);
     }
 
 	#endregion
