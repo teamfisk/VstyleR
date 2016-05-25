@@ -7,10 +7,10 @@ using UnityEditor;
 public class WarehouseRow : MonoBehaviour {
     public string Category;
 
+    public float Offset { get; set; }
+
     BezierCurve curve;
     Transform furniture;
-
-    float offset = 0;
 
     void Awake() {
         curve = transform.Find("Curve").GetComponent<BezierCurve>();
@@ -43,7 +43,7 @@ public class WarehouseRow : MonoBehaviour {
 
         foreach (Transform t in furniture) {
             var i = t.GetSiblingIndex();
-            var distance = (float)i / (furniture.childCount) * curve.length + offset;
+            var distance = (float)i / (furniture.childCount) * curve.length + Offset;
             distance = Mathf.Repeat(distance, curve.length);
             var pos = curve.GetPointAtDistance(distance);
             t.position = pos;
