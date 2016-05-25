@@ -552,4 +552,45 @@ public class BezierCurve : MonoBehaviour {
 		distance -= totalLength;
 		return GetPoint(firstPoint, secondPoint, distance / curveLength);
 	}
+
+    public Vector3 GetUniformPointAtDistance(float distance) {
+
+        if (distance <= 0) {
+            return points[0].position;
+        } else if (distance >= length) {
+            return points[points.Length - 1].position;
+        }
+
+        float segmentLength = length / 2;
+
+        float totalLength = 0;
+        for (int i = 0; i < points.Length - 1; i++) {
+            var p1 = points[i];
+            var p2 = points[i + 1];
+
+            if (p1 == null) {
+                p1 = points[points.Length - 1];
+                p2 = points[0];
+            }
+
+            var curveLength = ApproximateLength(p1, p2, resolution);
+            if (totalLength + curveLength < distance) {
+                totalLength += curveLength;
+                continue;
+            } else {
+                var curveDistance = distance - totalLength;
+                var segmentIndex = (float)Math.Floor(curveDistance / segmentLength);
+                var segmentStart = segmentIndex * segmentLength;
+                var segmentEnd = (segmentIndex + 1) * segmentLength;
+                var segmentDistance = curveDistance - segmentStart;
+
+                Vector3 s1 = GetPoint(p1, p2, segmentStart / curveLength);
+                Vector3 s2 = GetPoint(p1, p2, segmentEnd / curveLength);
+
+                return GetLinearPoint(s1, s2, segmentDistance / segmentLength);
+            }
+        }
+
+        return Vector3.zero;
+    }
 }
