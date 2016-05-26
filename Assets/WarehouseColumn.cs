@@ -21,14 +21,14 @@ public class WarehouseColumn : MonoBehaviour {
 	
     void Update() {
         if (Application.isPlaying) {
-            //offset += Time.deltaTime;
+            //Offset += Time.deltaTime * 4;
         }
 
         foreach (Transform row in rows) {
             var i = row.GetSiblingIndex();
             var distance = (float)i / (rows.childCount) * curve.length + Offset;
             distance = Mathf.Repeat(distance, curve.length);
-            var pos = curve.GetPointAtDistance(distance);
+            var pos = curve.GetUniformPointAtDistance(distance);
             row.position = pos;
         }
     }
