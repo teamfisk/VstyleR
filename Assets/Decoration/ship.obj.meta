@@ -1,37 +1,17 @@
 fileFormatVersion: 2
-guid: 66d65a5aac553914d8a0eb512c72326a
-timeCreated: 1464300490
+guid: f8e9876551e887d449dbb0e0116f0bc2
+timeCreated: 1464303263
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: //RootNode
-    100002: Room
-    100004: SM_Door
-    100006: SM_DoorFrame
-    100008: SM_WindowFrame.000
-    100010: SM_WindowFrame.001
-    400000: //RootNode
-    400002: Room
-    400004: SM_Door
-    400006: SM_DoorFrame
-    400008: SM_WindowFrame.000
-    400010: SM_WindowFrame.001
-    2300000: Room
-    2300002: SM_Door
-    2300004: SM_DoorFrame
-    2300006: SM_WindowFrame.000
-    2300008: SM_WindowFrame.001
-    3300000: Room
-    3300002: SM_Door
-    3300004: SM_DoorFrame
-    3300006: SM_WindowFrame.000
-    3300008: SM_WindowFrame.001
-    4300000: SM_WindowFrame.000
-    4300002: SM_WindowFrame.001
-    4300004: Room
-    4300006: SM_Door
-    4300008: SM_DoorFrame
+    100000: default
+    100002: //RootNode
+    400000: default
+    400002: //RootNode
+    2300000: default
+    3300000: default
+    4300000: default
   materials:
     importMaterials: 1
     materialName: 0
