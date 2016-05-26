@@ -561,13 +561,11 @@ public class BezierCurve : MonoBehaviour {
             return points[points.Length - 1].position;
         }
 
-        float segmentLength = length / 2;
-
         float totalLength = 0;
         for (int i = 0; i < points.Length - 1; i++) {
             var p1 = points[i];
             var p2 = points[i + 1];
-
+            
             if (p1 == null) {
                 p1 = points[points.Length - 1];
                 p2 = points[0];
@@ -579,15 +577,23 @@ public class BezierCurve : MonoBehaviour {
                 continue;
             } else {
                 var curveDistance = distance - totalLength;
-                var segmentIndex = (float)Math.Floor(curveDistance / segmentLength);
-                var segmentStart = segmentIndex * segmentLength;
-                var segmentEnd = (segmentIndex + 1) * segmentLength;
-                var segmentDistance = curveDistance - segmentStart;
+                
+                //Calculate the very first line segment
+                Vector3 s1 = p1.position;
+                Vector3 s2 = GetPoint(p1, p2, 1.0f / resolution);
+                float mag = (s2 - s1).magnitude;
+                float polylineLength = mag;
 
-                Vector3 s1 = GetPoint(p1, p2, segmentStart / curveLength);
-                Vector3 s2 = GetPoint(p1, p2, segmentEnd / curveLength);
-
-                return GetLinearPoint(s1, s2, segmentDistance / segmentLength);
+                //Keep calculating line segments until we have traveled more than curveDistance.
+                for (int segmentIndex = 2; polylineLength < curveDistance; segmentIndex++) {
+                    s1 = s2;
+                    s2 = GetPoint(p1, p2, (float)segmentIndex / resolution);
+                    mag = (s2 - s1).magnitude;
+                    polylineLength += mag;
+                }
+                //The desired position should be between s1 and s2.
+                //polylineLength should be slightly greater than curveDistance, the difference gives the 't' value.
+                return GetLinearPoint(s1, s2, 1 - (polylineLength - curveDistance) / mag);
             }
         }
 
