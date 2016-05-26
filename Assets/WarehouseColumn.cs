@@ -30,6 +30,8 @@ public class WarehouseColumn : MonoBehaviour {
             distance = Mathf.Repeat(distance, curve.length);
             var pos = curve.GetUniformPointAtDistance(distance);
             row.position = pos;
+            //var dir = curve.GetDirectionAtDistance(distance);
+            //row.LookAt(pos + dir);
         }
     }
 }

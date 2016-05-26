@@ -1,18 +1,18 @@
 fileFormatVersion: 2
-guid: a7d26e19677bc284ab16a6f03e80ca88
+guid: 0301f0a3f1c387140a351a9dbc852faa
 timeCreated: 1464281370
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: //RootNode
-    100002: Room
+    100000: Room
+    100002: //RootNode
     100004: SM_Door
     100006: SM_DoorFrame
     100008: SM_WindowFrame.000
     100010: SM_WindowFrame.001
-    400000: //RootNode
-    400002: Room
+    400000: Room
+    400002: //RootNode
     400004: SM_Door
     400006: SM_DoorFrame
     400008: SM_WindowFrame.000

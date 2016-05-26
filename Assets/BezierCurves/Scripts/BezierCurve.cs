@@ -552,13 +552,17 @@ public class BezierCurve : MonoBehaviour {
 		distance -= totalLength;
 		return GetPoint(firstPoint, secondPoint, distance / curveLength);
 	}
-
-    public Vector3 GetUniformPointAtDistance(float distance) {
-
-        if (distance <= 0) {
-            return points[0].position;
-        } else if (distance >= length) {
-            return points[points.Length - 1].position;
+    
+    private Vector3 GetAtPolylineDistance(float distance, bool returnDirection = false) {
+        Vector3 defaultDir = new Vector3(1, 0, 0);
+        if (distance <= 0 || distance >= length) {
+            if (returnDirection) {
+                return defaultDir;
+            } else if (distance <= 0) {
+                return points[0].position;
+            } else {
+                return points[points.Length - 1].position;
+            }
         }
 
         float totalLength = 0;
@@ -581,22 +585,41 @@ public class BezierCurve : MonoBehaviour {
                 //Calculate the very first line segment
                 Vector3 s1 = p1.position;
                 Vector3 s2 = GetPoint(p1, p2, 1.0f / resolution);
-                float mag = (s2 - s1).magnitude;
+                Vector3 diff = s2 - s1;
+                Vector3 prevDiff = diff;
+                float mag = diff.magnitude;
                 float polylineLength = mag;
 
                 //Keep calculating line segments until we have traveled more than curveDistance.
                 for (int segmentIndex = 2; polylineLength < curveDistance; segmentIndex++) {
+                    prevDiff = diff;
                     s1 = s2;
                     s2 = GetPoint(p1, p2, (float)segmentIndex / resolution);
-                    mag = (s2 - s1).magnitude;
+                    diff = s2 - s1;
+                    mag = diff.magnitude;
                     polylineLength += mag;
                 }
-                //The desired position should be between s1 and s2.
-                //polylineLength should be slightly greater than curveDistance, the difference gives the 't' value.
-                return GetLinearPoint(s1, s2, 1 - (polylineLength - curveDistance) / mag);
+                if (returnDirection) {
+                    //return diff;  //This is the actual direction on the polyline, but it looks very jittery without interpolation.
+                    return Vector3.Slerp(prevDiff.normalized, diff.normalized, 1 - (polylineLength - curveDistance) / mag);
+                } else {
+                    //The desired position should be between s1 and s2.
+                    //polylineLength should be slightly greater than curveDistance, the difference gives the 't' value.
+                    return GetLinearPoint(s1, s2, 1 - (polylineLength - curveDistance) / mag);
+                }
             }
         }
 
-        return Vector3.zero;
+        return returnDirection ? defaultDir : Vector3.zero;
+    }
+
+    public Vector3 GetDirectionAtDistance(float distance)
+    {
+        return GetAtPolylineDistance(distance, true);
+    }
+
+    public Vector3 GetUniformPointAtDistance(float distance)
+    {
+        return GetAtPolylineDistance(distance, false);
     }
 }
