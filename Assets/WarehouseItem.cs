@@ -1,40 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class WarehouseItem : FurnitureObject {
+public class WarehouseItem : MonoBehaviour {
 
-    public override void Grab(Transform attachment) {
-        var replacement = GameObject.Instantiate(this);
-        replacement.transform.parent = transform.parent;
-        replacement.transform.SetSiblingIndex(transform.GetSiblingIndex());
+    public FurnitureMiniature Pick() {
+        var clone = GameObject.Instantiate(this);
 
-        transform.parent = null;
-        foreach (var collider in GetComponentsInChildren<Collider>()) {
+        foreach (var collider in clone.GetComponentsInChildren<Collider>()) {
             collider.enabled = false;
         }
-        GetComponent<Rigidbody>().isKinematic = true;
+        clone.GetComponent<Rigidbody>().isKinematic = true;
 
-        var mini = gameObject.AddComponent<WarehouseMiniatureAnim>();
-        mini.OriginItem = replacement;
-        mini.DestinationAttachment = attachment;
-        mini.Duration = 0.33f;
-        mini.GoalScale = new Vector3(0.05f, 0.05f, 0.05f);
-    }
+        // Convert into a miniature
+        Destroy(clone.GetComponent<WarehouseItem>());
+        var mini = clone.gameObject.AddComponent<FurnitureMiniature>();
 
-    public override void Release() {
-        var mini = gameObject.GetComponent<WarehouseMiniatureAnim>();
-        if (mini) {
-            mini.End();
-        }
-
-        transform.parent = null;
-        foreach (var collider in GetComponentsInChildren<Collider>()) {
-            collider.enabled = true;
-        }
-        GetComponent<Rigidbody>().isKinematic = false;
-
-        gameObject.AddComponent<FurnitureMiniature>();
-        Destroy(this);
+        return mini;
     }
 
 	// Use this for initialization

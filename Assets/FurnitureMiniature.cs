@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class FurnitureMiniature : FurnitureObject {
-    public override void Grab(Transform attachment) {
+public class FurnitureMiniature : MonoBehaviour {
+    public void Grab(Transform attachment) {
         transform.parent = null;
         foreach (var collider in GetComponentsInChildren<Collider>()) {
             collider.enabled = false;
@@ -14,7 +14,7 @@ public class FurnitureMiniature : FurnitureObject {
         mini.Duration = 0.33f;
     }
 
-    public override void Release() {
+    public void Release() {
         var mini = gameObject.GetComponent<WarehouseMiniatureAnim>();
         if (mini) {
             mini.End();

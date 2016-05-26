@@ -9,7 +9,7 @@ public class RightController : MonoBehaviour {
     SteamVR_ControllerEvents controllerEvents;
     WarehouseColumn warehouse;
 
-    FurnitureObject heldItem;
+    GameObject heldItem;
 
     WarehouseRow whRow = null;
     Vector3? whScrollStartPos = null;
@@ -61,29 +61,60 @@ public class RightController : MonoBehaviour {
             return;
         }
 
-        var ray = new Ray(transform.position, transform.forward);
-        RaycastHit result;
-        bool hit = Physics.Raycast(ray, out result);
-
-        if (!hit) {
+        if (grabByProximity()) {
             return;
         }
 
-        var item = result.transform.GetComponentInParent<FurnitureObject>();
-        if (!item) {
+        if (grabByLaser()) {
             return;
         }
-
-        item.Grab(MiniatureAttachmentPoint);
-        heldItem = item;
     }
     void triggerUnclicked(object sender, ControllerClickedEventArgs e) {
         if (heldItem == null) {
             return;
         }
 
-        heldItem.Release();
+        var furnitureMini = heldItem.GetComponent<FurnitureMiniature>();
+        if (furnitureMini) {
+            furnitureMini.Release();
+        }
         heldItem = null;
+    }
+
+    bool grabByProximity() {
+        return false;
+    }
+
+    bool grabByLaser() {
+        var ray = new Ray(transform.position, transform.forward);
+        RaycastHit result;
+        bool hit = Physics.Raycast(ray, out result);
+
+        if (!hit) {
+            return false;
+        }
+
+        // Warehouse shelf grabbing
+        var warehouseItem = result.rigidbody.GetComponent<WarehouseItem>();
+        if (warehouseItem) {
+            var mini = warehouseItem.Pick();
+            mini.Grab(MiniatureAttachmentPoint);
+            var anim = mini.GetComponent<WarehouseMiniatureAnim>();
+            anim.OriginItem = warehouseItem;
+            anim.GoalScale = new Vector3(0.05f, 0.05f, 0.05f);
+            heldItem = mini.gameObject;
+            return true;
+        }
+
+        // Warehouse miniature grabbing remotely
+        var furnitureMini = result.rigidbody.GetComponent<FurnitureMiniature>();
+        if (furnitureMini) {
+            furnitureMini.Grab(MiniatureAttachmentPoint);
+            heldItem = furnitureMini.gameObject;
+            return true;
+        }
+
+        return false;
     }
 
     // Furniture scrolling by drag
