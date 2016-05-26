@@ -5,26 +5,25 @@ public class LeftController : MonoBehaviour {
 
     public bool AlwaysCenter = false;
 
+    Transform controllerRig;
+    SteamVR_ControllerEvents controllerEvents;
 
-    private Transform controllerRig;
-    private SteamVR_TrackedController trackedController;
+    GameObject mainCamera;
+    GameObject warehouseCamera;
 
-    private GameObject mainCamera;
-    private GameObject warehouseCamera;
+    CameraFade cameraFade;
+    SteamVR_Camera mainSteamVRCamera;
 
-    private CameraFade cameraFade;
-    private SteamVR_Camera mainSteamVRCamera;
+    bool inWarehouse = false;
 
-    private bool inWarehouse = false;
-
-	// Use this for initialization
-	void Start () {
+    void Awake() {
         controllerRig = this.transform.parent;
 
-        trackedController = GetComponent<SteamVR_TrackedController>();
-        trackedController.TriggerClicked += TriggerClicked;
-        trackedController.Gripped += Gripped;
+        controllerEvents = GetComponent<SteamVR_ControllerEvents>();
+        controllerEvents.TriggerAxisChanged += triggerAxisChanged;
+    }
 
+	void Start () {
         mainCamera = GameObject.Find("Main Camera (origin)");
         warehouseCamera = GameObject.Find("Warehouse Camera (origin)");
 
@@ -32,9 +31,8 @@ public class LeftController : MonoBehaviour {
         mainSteamVRCamera = mainCamera.GetComponentInChildren<SteamVR_Camera>();
     }
 	
-	// Update is called once per frame
-	void Update () {
-        float alpha = SteamVR_Controller.Input((int)trackedController.controllerIndex).GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger).x;
+    void triggerAxisChanged(object sender, ControllerClickedEventArgs e) {
+        float alpha = e.buttonPressure;
         if (alpha > 0.05) {
             cameraFade.SetFade(alpha);
             if (!inWarehouse) {
@@ -51,15 +49,5 @@ public class LeftController : MonoBehaviour {
                 inWarehouse = false;
             }
         }
-	}
-
-    void TriggerClicked(object sender, ClickedEventArgs e) {
-        //var warehouseCamera = GameObject.FindWithTag("WarehouseCamera").GetComponent<SteamVR_Camera>();
-        //warehouseCamera.enabled = true;
-        Debug.Log("awd");
-    }
-
-    void Gripped(object sender, ClickedEventArgs e) {
-
     }
 }

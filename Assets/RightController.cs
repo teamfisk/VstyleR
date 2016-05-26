@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class RightController : MonoBehaviour {
-    public GameObject banana;
-    public GameObject viveController;
+    public Transform MiniatureAttachmentPoint;
 
-    SteamVR_TrackedController trackedController;
+    SteamVR_LaserPointer laserPointer;
+    SteamVR_ControllerEvents controllerEvents;
     WarehouseColumn warehouse;
+
+    FurnitureObject heldItem;
 
     WarehouseRow whRow = null;
     Vector3? whScrollStartPos = null;
@@ -17,24 +20,22 @@ public class RightController : MonoBehaviour {
     float whRowScrollOffset = 0.0f;
 
     void Awake() {
-        trackedController = GetComponent<SteamVR_TrackedController>();
-        trackedController.TriggerClicked += triggerClicked;
-        trackedController.TriggerUnclicked += triggerUnclicked;
+        laserPointer = GetComponent<SteamVR_LaserPointer>();
+
+        controllerEvents = GetComponent<SteamVR_ControllerEvents>();
+        controllerEvents.TriggerClicked += triggerClicked;
+        controllerEvents.TriggerUnclicked += triggerUnclicked;
+        controllerEvents.TouchpadClicked += touchpadClicked;
+        controllerEvents.TouchpadUnclicked += touchpadUnclicked;
 
         warehouse = GameObject.Find("Warehouse/Shelves/Column").GetComponent<WarehouseColumn>();
     }
 
-	void Start () {
-        GetComponent<ViewFrustrumTrigger>().LeaveView += toggleBanana;
+    void Start () {
+        laserPointer.pointer.layer = 9;
 	}
 
-    void toggleBanana() {
-        banana.SetActive(!banana.activeSelf);
-        viveController.SetActive(!viveController.activeSelf);
-    }
-
     void Update () {
-
         // Warehouse scroll
         if (whScrollStartPos != null) {
             Vector3 curPos = transform.position + (transform.forward * whScrollDistance);
@@ -54,7 +55,12 @@ public class RightController : MonoBehaviour {
         return hit;
     }
 
-    void triggerClicked(object sender, ClickedEventArgs e) {
+    // Furniture picking
+    void triggerClicked(object sender, ControllerClickedEventArgs e) {
+        if (heldItem != null) {
+            return;
+        }
+
         var ray = new Ray(transform.position, transform.forward);
         RaycastHit result;
         bool hit = Physics.Raycast(ray, out result);
@@ -63,7 +69,34 @@ public class RightController : MonoBehaviour {
             return;
         }
 
-        var item = result.transform.GetComponent<WarehouseItem>();
+        var item = result.transform.GetComponentInParent<FurnitureObject>();
+        if (!item) {
+            return;
+        }
+
+        item.Grab(MiniatureAttachmentPoint);
+        heldItem = item;
+    }
+    void triggerUnclicked(object sender, ControllerClickedEventArgs e) {
+        if (heldItem == null) {
+            return;
+        }
+
+        heldItem.Release();
+        heldItem = null;
+    }
+
+    // Furniture scrolling by drag
+    void touchpadClicked(object sender, ControllerClickedEventArgs e) {
+        var ray = new Ray(transform.position, transform.forward);
+        RaycastHit result;
+        bool hit = Physics.Raycast(ray, out result);
+
+        if (!hit) {
+            return;
+        }
+
+        var item = result.transform.GetComponentInParent<WarehouseItem>();
         if (!item) {
             return;
         }
@@ -74,8 +107,7 @@ public class RightController : MonoBehaviour {
         whBaseOffset = warehouse.Offset;
         whRowBaseOffset = whRow.Offset;
     }
-
-    void triggerUnclicked(object sender, ClickedEventArgs e) {
+    void touchpadUnclicked(object sender, ControllerClickedEventArgs e) {
         if (whScrollStartPos != null) {
             whScrollStartPos = null;
         }

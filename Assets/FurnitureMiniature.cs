@@ -1,13 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class WarehouseItem : FurnitureObject {
-
+public class FurnitureMiniature : FurnitureObject {
     public override void Grab(Transform attachment) {
-        var replacement = GameObject.Instantiate(this);
-        replacement.transform.parent = transform.parent;
-        replacement.transform.SetSiblingIndex(transform.GetSiblingIndex());
-
         transform.parent = null;
         foreach (var collider in GetComponentsInChildren<Collider>()) {
             collider.enabled = false;
@@ -15,10 +10,8 @@ public class WarehouseItem : FurnitureObject {
         GetComponent<Rigidbody>().isKinematic = true;
 
         var mini = gameObject.AddComponent<WarehouseMiniatureAnim>();
-        mini.OriginItem = replacement;
         mini.DestinationAttachment = attachment;
         mini.Duration = 0.33f;
-        mini.GoalScale = new Vector3(0.05f, 0.05f, 0.05f);
     }
 
     public override void Release() {
@@ -32,9 +25,6 @@ public class WarehouseItem : FurnitureObject {
             collider.enabled = true;
         }
         GetComponent<Rigidbody>().isKinematic = false;
-
-        gameObject.AddComponent<FurnitureMiniature>();
-        Destroy(this);
     }
 
 	// Use this for initialization
