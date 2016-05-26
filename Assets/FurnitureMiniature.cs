@@ -2,16 +2,12 @@
 using System.Collections;
 
 public class FurnitureMiniature : MonoBehaviour {
-    public void Grab(Transform attachment) {
+    public void Grab() {
         transform.parent = null;
         foreach (var collider in GetComponentsInChildren<Collider>()) {
             collider.enabled = false;
         }
         GetComponent<Rigidbody>().isKinematic = true;
-
-        var mini = gameObject.AddComponent<WarehouseMiniatureAnim>();
-        mini.DestinationAttachment = attachment;
-        mini.Duration = 0.33f;
     }
 
     public void Release() {

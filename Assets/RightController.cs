@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class RightController : MonoBehaviour {
     public Transform MiniatureAttachmentPoint;
 
     SteamVR_LaserPointer laserPointer;
     SteamVR_ControllerEvents controllerEvents;
+    BoxCollider boxCollider;
     WarehouseColumn warehouse;
 
+    HashSet<GameObject> touchingItems = new HashSet<GameObject>(); 
     GameObject heldItem;
 
     WarehouseRow whRow = null;
@@ -48,11 +51,17 @@ public class RightController : MonoBehaviour {
         }
 	}
 
-    RaycastHit raycast() {
-        var ray = new Ray(transform.position, transform.forward);
-        RaycastHit hit;
-        bool bHit = Physics.Raycast(ray, out hit);
-        return hit;
+    void OnTriggerEnter(Collider other) {
+        var mini = other.GetComponentInParent<FurnitureMiniature>();
+        if (mini == null) {
+            return;
+        }
+
+        touchingItems.Add(other.gameObject);
+    }
+
+    void OnTriggerExit(Collider other) {
+        touchingItems.Remove(other.gameObject);
     }
 
     // Furniture picking
@@ -82,7 +91,28 @@ public class RightController : MonoBehaviour {
     }
 
     bool grabByProximity() {
-        return false;
+        GameObject closest = null;
+        foreach (var obj in touchingItems) {
+             if (closest == null) {
+                closest = obj;
+                continue;
+            }
+
+            if ((obj.transform.position - boxCollider.bounds.center).magnitude < (closest.transform.position - boxCollider.bounds.center).magnitude) {
+                closest = obj;
+            }
+        }
+
+        if (closest == null) {
+            return false;
+        }
+
+        var mini = closest.GetComponentInParent<FurnitureMiniature>();
+        mini.Grab();
+        mini.transform.parent = transform;
+        heldItem = mini.gameObject;
+
+        return true;
     }
 
     bool grabByLaser() {
@@ -98,18 +128,29 @@ public class RightController : MonoBehaviour {
         var warehouseItem = result.rigidbody.GetComponent<WarehouseItem>();
         if (warehouseItem) {
             var mini = warehouseItem.Pick();
-            mini.Grab(MiniatureAttachmentPoint);
-            var anim = mini.GetComponent<WarehouseMiniatureAnim>();
+            mini.Grab();
+
+            var anim = mini.gameObject.AddComponent<WarehouseMiniatureAnim>();
             anim.OriginItem = warehouseItem;
+            anim.DestinationAttachment = MiniatureAttachmentPoint;
             anim.GoalScale = new Vector3(0.05f, 0.05f, 0.05f);
+            anim.Duration = 0.33f;
+
             heldItem = mini.gameObject;
+
             return true;
         }
 
         // Warehouse miniature grabbing remotely
         var furnitureMini = result.rigidbody.GetComponent<FurnitureMiniature>();
         if (furnitureMini) {
-            furnitureMini.Grab(MiniatureAttachmentPoint);
+            furnitureMini.Grab();
+
+            var anim = furnitureMini.gameObject.AddComponent<WarehouseMiniatureAnim>();
+            //anim.OriginItem = furnitureMini;
+            anim.DestinationAttachment = MiniatureAttachmentPoint;
+            anim.Duration = 0.33f;
+
             heldItem = furnitureMini.gameObject;
             return true;
         }
