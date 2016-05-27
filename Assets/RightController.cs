@@ -9,6 +9,7 @@ public class RightController : MonoBehaviour {
     public GameObject MainCamera;
     public GameObject WarehouseCamera;
 
+    SteamVR_TrackedObject controller;
     SteamVR_LaserPointer laserPointer;
     SteamVR_ControllerEvents controllerEvents;
     BoxCollider boxCollider;
@@ -27,7 +28,11 @@ public class RightController : MonoBehaviour {
 
     Measurement currentMeasurement = null;
 
+    Vector3 lastPos;
+
     void Awake() {
+        controller = GetComponent<SteamVR_TrackedObject>();
+
         laserPointer = GetComponent<SteamVR_LaserPointer>();
 
         controllerEvents = GetComponent<SteamVR_ControllerEvents>();
@@ -45,6 +50,8 @@ public class RightController : MonoBehaviour {
 
     void Start () {
         laserPointer.pointer.layer = 9;
+
+        lastPos = transform.position;
 	}
 
     void Update () {
@@ -63,6 +70,8 @@ public class RightController : MonoBehaviour {
         if (currentMeasurement != null) {
             currentMeasurement.EndPosition = transform.localPosition;
         }
+
+        lastPos = transform.position;
 	}
 
     void OnTriggerEnter(Collider other) {
@@ -106,6 +115,10 @@ public class RightController : MonoBehaviour {
         var furnitureMini = heldItem.GetComponent<FurnitureMiniature>();
         if (furnitureMini) {
             furnitureMini.Release();
+            /*var device = SteamVR_Controller.Input((int)controller.index);
+            var rb = furnitureMini.GetComponent<Rigidbody>();
+            rb.velocity = device.velocity;
+            rb.angularVelocity = device.angularVelocity;*/
         }
         heldItem = null;
     }

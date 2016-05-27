@@ -220,7 +220,7 @@ public class SteamVR_Render : MonoBehaviour
 			c.transform.localRotation = vr.eyes[i].rot;
 
 			// Update position to keep from getting culled
-			cameraMask.transform.position = c.transform.position;
+			//cameraMask.transform.position = c.transform.position;
 
 			var camera = c.GetComponent<Camera>();
 			camera.targetTexture = SteamVR_Camera.GetSceneTexture(camera.hdr);
@@ -321,9 +321,9 @@ public class SteamVR_Render : MonoBehaviour
 	void Awake()
 	{
 #if (UNITY_5_3 || UNITY_5_2 || UNITY_5_1 || UNITY_5_0)
-		var go = new GameObject("cameraMask");
-		go.transform.parent = transform;
-		cameraMask = go.AddComponent<SteamVR_CameraMask>();
+		//var go = new GameObject("cameraMask");
+		//go.transform.parent = transform;
+		//cameraMask = go.AddComponent<SteamVR_CameraMask>();
 #endif
 		if (externalCamera == null && System.IO.File.Exists(externalCameraConfigPath))
 		{

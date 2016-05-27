@@ -5,6 +5,8 @@ public class LeftController : MonoBehaviour {
 
     public GameObject MainCamera;
     public GameObject WarehouseCamera;
+    public GameObject NormalRoom;
+    public GameObject TransparentRoom;
 
     Transform controllerRig;
     SteamVR_ControllerEvents controllerEvents;
@@ -33,6 +35,8 @@ public class LeftController : MonoBehaviour {
                 WarehouseCamera.SetActive(true);
                 controllerRig.SetParent(WarehouseCamera.transform, false);
                 inWarehouse = true;
+                NormalRoom.SetActive(false);
+                TransparentRoom.SetActive(true);
             }
         } else {
             cameraFade.SetFade(0.0f);
@@ -40,6 +44,8 @@ public class LeftController : MonoBehaviour {
                 controllerRig.SetParent(MainCamera.transform, false);
                 WarehouseCamera.SetActive(false);
                 inWarehouse = false;
+                NormalRoom.SetActive(true);
+                TransparentRoom.SetActive(false);
             }
         }
 
