@@ -3,16 +3,13 @@ using System.Collections;
 
 public class LeftController : MonoBehaviour {
 
-    public bool AlwaysCenter = false;
+    public GameObject MainCamera;
+    public GameObject WarehouseCamera;
 
     Transform controllerRig;
     SteamVR_ControllerEvents controllerEvents;
 
-    GameObject mainCamera;
-    GameObject warehouseCamera;
-
     CameraFade cameraFade;
-    SteamVR_Camera mainSteamVRCamera;
 
     bool inWarehouse = false;
 
@@ -21,14 +18,11 @@ public class LeftController : MonoBehaviour {
 
         controllerEvents = GetComponent<SteamVR_ControllerEvents>();
         controllerEvents.TriggerAxisChanged += triggerAxisChanged;
+
+        cameraFade = MainCamera.GetComponentInChildren<CameraFade>();
     }
 
 	void Start () {
-        mainCamera = GameObject.Find("Main Camera (origin)");
-        warehouseCamera = GameObject.Find("Warehouse Camera (origin)");
-
-        cameraFade = mainCamera.GetComponentInChildren<CameraFade>();
-        mainSteamVRCamera = mainCamera.GetComponentInChildren<SteamVR_Camera>();
     }
 	
     void triggerAxisChanged(object sender, ControllerClickedEventArgs e) {
@@ -36,18 +30,21 @@ public class LeftController : MonoBehaviour {
         if (alpha > 0.05) {
             cameraFade.SetFade(alpha);
             if (!inWarehouse) {
-                controllerRig.SetParent(warehouseCamera.transform, false);
-                if (AlwaysCenter) {
-                    warehouseCamera.transform.localPosition = new Vector3(-mainSteamVRCamera.head.localPosition.x, warehouseCamera.transform.localPosition.y, -mainSteamVRCamera.head.localPosition.z);
-                }
+                WarehouseCamera.SetActive(true);
+                controllerRig.SetParent(WarehouseCamera.transform, false);
                 inWarehouse = true;
             }
         } else {
             cameraFade.SetFade(0.0f);
             if (inWarehouse) {
-                controllerRig.SetParent(mainCamera.transform, false);
+                controllerRig.SetParent(MainCamera.transform, false);
+                WarehouseCamera.SetActive(false);
                 inWarehouse = false;
             }
+        }
+
+        foreach (var measurement in GameObject.FindObjectsOfType<Measurement>()) {
+            measurement.InWarehouse = inWarehouse;
         }
     }
 }

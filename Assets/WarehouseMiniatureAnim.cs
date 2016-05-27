@@ -14,7 +14,7 @@ public class WarehouseMiniatureAnim : MonoBehaviour {
 
 	void Start () {
         originalPos = transform.position;
-        originalScale = Vector3.Scale(transform.localScale, GoalScale);
+        originalScale = transform.localScale;
 	}
 	
 	void Update () {
@@ -29,14 +29,14 @@ public class WarehouseMiniatureAnim : MonoBehaviour {
         var startPos = OriginItem ? OriginItem.transform.position : originalPos; 
         transform.position = Vector3.Lerp(startPos, t2.position, alpha);
         //transform.rotation = Quaternion.Slerp(transform.rotation, t2.rotation, alpha);
-        var startScale = OriginItem ? OriginItem.transform.localScale : originalScale; 
-        transform.localScale = Vector3.Lerp(startScale, Vector3.Scale(originalScale, t2.lossyScale), alpha);
+        var startScale = OriginItem.transform.localScale;
+        transform.localScale = Vector3.Lerp(startScale, Vector3.Scale(originalScale, GoalScale), alpha);
 	}
 
     public void End() {
         transform.SetParent(DestinationAttachment, false);
         transform.localPosition = Vector3.zero;
-        transform.localScale = originalScale;
+        //transform.localScale = originalScale;
         Destroy(this);
     }
 }

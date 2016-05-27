@@ -31,7 +31,7 @@ public class SteamVR_LaserPointer : MonoBehaviour
 	void Start ()
     {
         holder = new GameObject();
-        holder.transform.parent = this.transform;
+        holder.transform.SetParent(transform, false);
         holder.transform.localPosition = Vector3.zero;
 
         pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);

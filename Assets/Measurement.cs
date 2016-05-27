@@ -15,6 +15,8 @@ public class Measurement : MonoBehaviour {
 
     private float LineWidth;
 
+    public bool InWarehouse = false;
+
     // Use this for initialization
     void Start () {
 	
@@ -35,6 +37,10 @@ public class Measurement : MonoBehaviour {
         Vector3 middlePosition = (LocalStartPosition + (LocalEndPosition - LocalStartPosition) / 2.0f);
 
         float smallestScale = Mathf.Min(transform.lossyScale.x, Mathf.Min(transform.lossyScale.y, transform.lossyScale.z));
+        
+        if(InWarehouse) {
+            smallestScale = smallestScale / 10.0f;
+        }
 
         if (smallestScale < 0.4f)
         {
@@ -74,7 +80,7 @@ public class Measurement : MonoBehaviour {
         textMesh.text = textMagnitude.ToString("0.00") + "m";
 
 
-	    textMesh.characterSize = Mathf.Max(0.001f * Math.Min(1.0f , textMagnitude), 0.002f);
+	    textMesh.characterSize = Mathf.Max(0.0005f * Math.Min(1.0f , textMagnitude), 0.0005f);
 
         HoleSize = Mathf.Max(0.1f * Math.Min(1.0f, magnitude), 0.05f);
         
@@ -90,8 +96,13 @@ public class Measurement : MonoBehaviour {
         line2BaseRenderer.SetPosition(0, LocalEndPosition + lineUp * 0.01f);
         line2BaseRenderer.SetPosition(1, LocalEndPosition - lineUp * 0.01f);
 
-        
-	    LineWidth = Mathf.Min(DefaultLineWith*smallestScale, 0.003f);
+        if(InWarehouse) {
+            LineWidth = 0.007f;
+        }
+        else {
+            LineWidth = Mathf.Min(DefaultLineWith * smallestScale, 0.003f);
+        }
+	   
 
         line1Renderer.SetWidth(LineWidth, LineWidth);
         line2Renderer.SetWidth(LineWidth, LineWidth);
@@ -105,7 +116,7 @@ public class Measurement : MonoBehaviour {
             LineRenderer lineMiddleRenderer = line1BaseTransform.GetComponent<LineRenderer>();
             lineMiddleRenderer.SetWidth(LineWidth, LineWidth);
             
-	        Vector3 upDistance = new Vector3(0, 2.0f, 0);
+	        Vector3 upDistance = new Vector3(0, 20.0f, 0);
             upDistance = upDistance*smallestScale;
 
 	        textTransform.position = middlePosition + upDistance*1.1f;
@@ -115,7 +126,7 @@ public class Measurement : MonoBehaviour {
             lineMiddleRenderer.SetPosition(1, middlePosition + upDistance);
         } else {
             Transform lineMiddleTransform = transform.FindChild("LineMiddle");
-            LineRenderer lineMiddleRenderer = line1BaseTransform.GetComponent<LineRenderer>();
+            LineRenderer lineMiddleRenderer = lineMiddleTransform.GetComponent<LineRenderer>();
             lineMiddleRenderer.SetWidth(0, 0);
         }
 	}

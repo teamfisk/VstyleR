@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class FurnitureMiniature : MonoBehaviour {
+
     public void Grab() {
         transform.parent = null;
         foreach (var collider in GetComponentsInChildren<Collider>()) {

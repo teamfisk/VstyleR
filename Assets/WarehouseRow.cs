@@ -45,7 +45,7 @@ public class WarehouseRow : MonoBehaviour {
             var i = t.GetSiblingIndex();
             var distance = (float)i / (furniture.childCount) * curve.length + Offset;
             distance = Mathf.Repeat(distance, curve.length);
-            var pos = curve.GetPointAtDistance(distance);
+            var pos = curve.GetUniformPointAtDistance(distance);
             t.position = pos;
         }
     }

@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 public class RightController : MonoBehaviour {
     public Transform MiniatureAttachmentPoint;
+    public Material OutlineMaterial;
+    public GameObject MainCamera;
+    public GameObject WarehouseCamera;
 
     SteamVR_LaserPointer laserPointer;
     SteamVR_ControllerEvents controllerEvents;
@@ -22,6 +25,8 @@ public class RightController : MonoBehaviour {
     float whRowBaseOffset = 0.0f;
     float whRowScrollOffset = 0.0f;
 
+    Measurement currentMeasurement = null;
+
     void Awake() {
         laserPointer = GetComponent<SteamVR_LaserPointer>();
 
@@ -30,6 +35,10 @@ public class RightController : MonoBehaviour {
         controllerEvents.TriggerUnclicked += triggerUnclicked;
         controllerEvents.TouchpadClicked += touchpadClicked;
         controllerEvents.TouchpadUnclicked += touchpadUnclicked;
+        controllerEvents.ApplicationMenuClicked += applicationMenuClicked;
+        controllerEvents.ApplicationMenuUnclicked += applicationMenuUnclicked;
+
+        boxCollider = GetComponent<BoxCollider>();
 
         warehouse = GameObject.Find("Warehouse/Shelves/Column").GetComponent<WarehouseColumn>();
     }
@@ -49,6 +58,11 @@ public class RightController : MonoBehaviour {
             warehouse.Offset = whBaseOffset + (-whScrollOffset);
             whRow.Offset = whRowBaseOffset + whRowScrollOffset;
         }
+
+        // Measurement
+        if (currentMeasurement != null) {
+            currentMeasurement.EndPosition = transform.localPosition;
+        }
 	}
 
     void OnTriggerEnter(Collider other) {
@@ -57,11 +71,17 @@ public class RightController : MonoBehaviour {
             return;
         }
 
-        touchingItems.Add(other.gameObject);
+        touchingItems.Add(mini.gameObject);
+        //mini.gameObject.AddComponent<Outline>().OutlineMaterial = Resources.Load<Material>("OutLineMaterialMini");
     }
 
     void OnTriggerExit(Collider other) {
-        touchingItems.Remove(other.gameObject);
+        var mini = other.GetComponentInParent<FurnitureMiniature>();
+        if (mini == null) {
+            return;
+        }
+        touchingItems.Remove(mini.gameObject);
+        //Destroy(mini.gameObject.GetComponent<Outline>());
     }
 
     // Furniture picking
@@ -129,12 +149,15 @@ public class RightController : MonoBehaviour {
         if (warehouseItem) {
             var mini = warehouseItem.Pick();
             mini.Grab();
+            mini.transform.SetParent(MiniatureAttachmentPoint, false);
+            mini.transform.localPosition = Vector3.zero;
+            mini.transform.localScale = Vector3.one / 10.0f;
 
-            var anim = mini.gameObject.AddComponent<WarehouseMiniatureAnim>();
-            anim.OriginItem = warehouseItem;
-            anim.DestinationAttachment = MiniatureAttachmentPoint;
-            anim.GoalScale = new Vector3(0.05f, 0.05f, 0.05f);
-            anim.Duration = 0.33f;
+            //var anim = mini.gameObject.AddComponent<WarehouseMiniatureAnim>();
+            //anim.OriginItem = warehouseItem;
+            //anim.DestinationAttachment = MiniatureAttachmentPoint;
+            //anim.GoalScale = new Vector3(0.1f, 0.1f, 0.1f);
+            //anim.Duration = 0.33f;
 
             heldItem = mini.gameObject;
 
@@ -145,11 +168,17 @@ public class RightController : MonoBehaviour {
         var furnitureMini = result.rigidbody.GetComponent<FurnitureMiniature>();
         if (furnitureMini) {
             furnitureMini.Grab();
+            if (WarehouseCamera.activeSelf) {
+                furnitureMini.transform.SetParent(MiniatureAttachmentPoint, true);
+                furnitureMini.transform.localPosition = Vector3.zero;
+            } else {
+                furnitureMini.transform.SetParent(MiniatureAttachmentPoint, true);
+            }
 
-            var anim = furnitureMini.gameObject.AddComponent<WarehouseMiniatureAnim>();
+            //var anim = furnitureMini.gameObject.AddComponent<WarehouseMiniatureAnim>();
             //anim.OriginItem = furnitureMini;
-            anim.DestinationAttachment = MiniatureAttachmentPoint;
-            anim.Duration = 0.33f;
+            //anim.DestinationAttachment = MiniatureAttachmentPoint;
+            //anim.Duration = 0.33f;
 
             heldItem = furnitureMini.gameObject;
             return true;
@@ -183,5 +212,19 @@ public class RightController : MonoBehaviour {
         if (whScrollStartPos != null) {
             whScrollStartPos = null;
         }
+    }
+
+    void applicationMenuClicked(object sender, ControllerClickedEventArgs e) {
+        if (currentMeasurement == null) {
+            var prefab = Resources.Load<GameObject>("Measurement");
+            currentMeasurement = Instantiate(prefab).GetComponent<Measurement>();
+            currentMeasurement.transform.SetParent(GameObject.Find("Scene").transform, false);
+            currentMeasurement.StartPosition = transform.localPosition;
+            currentMeasurement.EndPosition = transform.localPosition;
+        }
+    }
+
+    void applicationMenuUnclicked(object sender, ControllerClickedEventArgs e) {
+        currentMeasurement = null;
     }
 }
